@@ -1,0 +1,3 @@
+[submodule "openhab-cloud"]
+	path = openhab-cloud
+	url = https://github.com/openhab/openhab-cloud.git

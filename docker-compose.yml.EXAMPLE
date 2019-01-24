@@ -1,0 +1,84 @@
+version: "2"
+services:
+    app-1:
+#        image: "node:8.15.0-stretch"
+        build:
+          context: ./openhab-cloud        
+          dockerfile: $PWD/node/Dockerfile
+        container_name: app-1
+        working_dir: /opt/openhabcloud
+        networks:
+        - ohcloud-network
+        environment:
+         - VIRTUAL_HOST={WWW.YOURDOMAIN.COM}
+         - DEFAULT_HOST={WWW.YOURDOMAIN.COM}
+         - VIRTUAL_PORT=3000
+         - LETSENCRYPT_HOST={WWW.YOURDOMAIN.COM}
+         - LETSENCRYPT_EMAIL={YOUR_EMAIL}
+        volumes:
+        - ./openhab-cloud:/opt/openhab-cloud
+        links:
+        - mongodb
+        - redis
+        ports:
+        - "3000"
+        depends_on:
+        - mongodb
+        - redis  
+        restart: always   
+
+    mongodb:
+        container_name: mongodb
+        image: nonoroazoro/rpi-mongo
+        ports:
+        - "27017:27017"
+## From original docker-compose .. Not working , so cutted...
+#        command: mongod --smallfiles --bind_ip_all
+        networks:
+        - ohcloud-network
+        restart: always
+
+    redis:
+        container_name: redis
+        image: arm32v7/redis
+        command: redis-server --appendonly yes
+        networks:
+        - ohcloud-network
+        ports:
+        - "6379:6379"
+        restart: always
+
+    nginx-proxy:
+        container_name: nginx
+        image: alexanderkrause/rpi-nginx-proxy:latest
+        ports:
+        - "80:80"
+        - "443:443"
+        volumes:
+        - ./openhabcloud_nginx.conf:/etc/nginx/vhost.d/ohcloud.conf
+        - ./certs:/etc/nginx/certs
+        - /etc/nginx/vhost.d
+        - /usr/share/nginx/html
+        - /var/run/docker.sock:/tmp/docker.sock:ro
+        networks:
+        - ohcloud-network
+        links:
+        - app-1:app-1
+        restart: always
+
+    nginx-proxy-letsencrypt:
+        image: alexanderkrause/rpi-letsencrypt-nginx-proxy-companion
+        container_name: nginx-proxy-letsencrypt
+        volumes:
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+        volumes_from:
+        - nginx-proxy
+        networks:
+        - ohcloud-network
+
+volumes:
+  app-1:
+
+networks:
+  ohcloud-network:
+    driver: bridge
