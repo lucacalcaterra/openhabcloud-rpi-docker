@@ -9,7 +9,7 @@ It's not so wide tested, so...Feel to open new issues and ask if you have troubl
 
 ## How to launch
 
-Clone the repo using --recurse-submodules (the rpo contain reference to openhab-cloud):
+Clone the repo using --recurse-submodules (the repo contain reference to openhab-cloud):
 
  1. **git clone --recurse-submodules https://github.com/lucacalcaterra/openhabcloud-rpi-docker.git**
  2. Copy  docker-compose.yml.EXAMPLE to docker-compose.yml and change  variables refer to your domain and changing with your openhab server port
