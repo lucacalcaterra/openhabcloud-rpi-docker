@@ -32,8 +32,7 @@ services:
         image: nonoroazoro/rpi-mongo
         ports:
         - "27017:27017"
-## From original docker-compose .. Not working , so cutted...
-#        command: mongod --smallfiles --bind_ip_all
+        command: mongod --smallfiles
         networks:
         - ohcloud-network
         restart: always
